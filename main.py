@@ -1,5 +1,8 @@
 import pandas as pd
 from ydata_profiling import ProfileReport
+import matplotlib.pyplot as plt
+import seaborn as sns
+import os
 
 
 def main():
@@ -12,6 +15,7 @@ def main():
         return
     df = clean_and_transform(df)
     exploratory_data_analysis(df)
+    visualize_data(df)
 
 
 def clean_and_transform(df):
@@ -93,6 +97,53 @@ def exploratory_data_analysis(df):
     profile.to_file("oscar_eda_report.html")
     print("Reporte HTML guardado como 'oscar_eda_report.html'.")
 
+
+def visualize_data(df):
+    """
+    Generates and saves visualizations for the DataFrame.
+    """
+    print("\n===== Generando Visualizaciones =====\n")
+
+    # Create directory to save images if it doesn't exist
+    if not os.path.exists('visualizations'):
+        os.makedirs('visualizations')
+
+    # 1. Histogram of awards by year
+    plt.figure(figsize=(12, 6))
+    sns.histplot(df['year_film'], bins=30, kde=True)
+    plt.title('Distribución de Premios Oscar por Año de Película')
+    plt.xlabel('Año de las Películas')
+    plt.ylabel('Número de Premios')
+    plt.grid(True)
+    plt.savefig('visualizations/distribution_awards_year.png')
+    plt.close()
+    print("Histograma de premios por año guardado en 'visualizations/distribution_awards_year.png'")
+
+    # 2. Bar chart of top 10 most awarded films
+    plt.figure(figsize=(12, 8))
+    top_films = df['film'].value_counts().nlargest(10)
+    sns.barplot(x=top_films.values, y=top_films.index, hue=top_films.index, palette='viridis', legend=False)
+    plt.title('Top 10 Películas con Más Nominaciones/Premios Oscar')
+    plt.xlabel('Número de Nominaciones/Premios')
+    plt.ylabel('Película')
+    plt.tight_layout()
+    plt.savefig('visualizations/most_awarded_movies.png')
+    plt.close()
+    print("Gráfico de barras de top 10 películas guardado en 'visualizations/most_awarded_movies.png'")
+
+    # 3. Bar chart of top 10 most frequent award categories
+    plt.figure(figsize=(12, 8))
+    top_categories = df['category'].value_counts().nlargest(10)
+    sns.barplot(x=top_categories.values, y=top_categories.index, hue=top_categories.index, palette='plasma', legend=False)
+    plt.title('Top 10 Categorías de Premios Oscar más Frecuentes')
+    plt.xlabel('Frecuencia')
+    plt.ylabel('Categoría')
+    plt.tight_layout()
+    plt.savefig('visualizations/most_awarded_categories.png')
+    plt.close()
+    print("Gráfico de barras de top 10 categorías guardado en 'visualizations/most_awarded_categories.png'")
+
+    print("\n===== Visualizaciones Generadas =====\n")
 
 if __name__ == "__main__":
     main()
